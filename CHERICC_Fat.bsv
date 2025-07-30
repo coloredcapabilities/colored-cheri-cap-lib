@@ -40,6 +40,7 @@ export CapPipe;
 export CapFat;
 export MW;
 export OTypeW;
+export CCTypeW;
 export FlagsW;
 export Perms;
 export ResW;
@@ -90,6 +91,7 @@ typedef 4   UPermW;
 typedef 14  MW;
 typedef 6   ExpW;
 typedef 18  OTypeW;
+typedef 18  CCTypeW;
 typedef `FLAGSW FlagsW;
 typedef 64  CapAddrW;
 typedef 128 CapW;
@@ -1086,6 +1088,8 @@ instance CHERICap #(CapMem, OTypeW, FlagsW, CapAddrW, CapW, TSub #(MW, 3));
   // capability kind
   //////////////////////////////////////////////////////////////////////////////
   function getKind = error ("getKind not implemented for CapMem");
+  function getCCType = error ("getCCType not implemented for CapMem");
+  function setCCType = error ("setCCType not implemented for CapMem");
   function setKind = error ("setKind not implemented for CapMem");
   function validAsType (dummy, checkType);
     UInt #(CapAddrW) checkTypeUnsigned = unpack (checkType);
@@ -1245,6 +1249,10 @@ instance CHERICap #(CapReg, OTypeW, FlagsW, CapAddrW, CapW, TSub #(MW, 3));
     cap.perms.soft = truncate (perms);
     return cap;
   endfunction
+  function setCCType (cap, otype); 
+    cap.otype = truncate (otype);
+    return cap;
+  endfunction
   //function getPerms = error ("getPerms not implemented for CapReg");
   //function setPerms = error ("setPerms not implemented for CapReg");
 
@@ -1257,6 +1265,11 @@ instance CHERICap #(CapReg, OTypeW, FlagsW, CapAddrW, CapW, TSub #(MW, 3));
     otype_res1:     RES1;
     default:        SEALED_WITH_TYPE (cap.otype);
   endcase;
+
+  function getCCType (cap) = zeroExtend (cap.otype);
+
+
+  
   function setKind (cap, kind) = case (kind) matches
     tagged UNSEALED:             unseal (cap, ?);
     tagged SENTRY:               seal (cap, ?, VnD {v: True, d:otype_sentry});
@@ -1264,6 +1277,7 @@ instance CHERICap #(CapReg, OTypeW, FlagsW, CapAddrW, CapW, TSub #(MW, 3));
     tagged RES1:                 seal (cap, ?, VnD {v: True, d:otype_res1});
     tagged SEALED_WITH_TYPE .ot: seal (cap, ?, VnD {v: True, d:ot});
   endcase;
+
   function validAsType (dummy, checkType);
     CapMem nullC = nullCap;
     return validAsType (nullC, checkType);
@@ -1360,10 +1374,13 @@ instance CHERICap #(CapPipe, OTypeW, FlagsW, CapAddrW, CapW, TSub#(MW, 3));
     CapPipe { capFat: setSoftPerms(cap.capFat, perms)
             , tempFields: cap.tempFields };
   function getKind (cap) = getKind(cap.capFat);
+  function getCCType (cap) = getCCType(cap.capFat);
   function setKind (cap, kind) =
     CapPipe { capFat:setKind(cap.capFat,kind)
             , tempFields: cap.tempFields };
-
+  function setCCType (cap, kind) =
+    CapPipe { capFat:setCCType(cap.capFat,kind)
+            , tempFields: cap.tempFields };
   function getMeta (cap) = getMeta (cap.capFat);
   function getAddr (cap) = getAddr (cap.capFat);
   function maskAddr (cap, mask) =

@@ -36,6 +36,7 @@ package CHERICap;
 
 typedef Bit #(16) SoftPerms;
 
+
 typedef struct {
   Bool permitSetCID;
   Bool accessSysRegs;
@@ -195,7 +196,8 @@ typeclass CHERICap #( type capT              // type of the CHERICap capability
   //////////////////////////////////////////////////////////////////////////////
   // Manipulate the kind of the capability, i.e. whether it is sealed, sentry,
   // unsealed, ...
-
+  function capT setCCType (capT cap, Bit #(otypeW) kind);
+  function Bit #(18) getCCType (capT cap);
   // get the kind of a capability
   function Kind #(otypeW) getKind (capT cap);
   // set the kind of a capability

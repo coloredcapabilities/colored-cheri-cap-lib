@@ -290,15 +290,16 @@ instance CHERICap#(CHERICCCap#(addr_, bounds_, e_, t_), t_, addr_) provisos (
     return cap;
   endfunction
   //////////////////////////////////////////////////////////////////////////////
-  function getKind(cap) = case (cap.bounds) matches
+  function getKind(cap) = case (cap.otypes) matches
     tagged Sealed ._: return SEALED_WITH_TYPE;
     default: return UNSEALED;
   endcase;
+  function setCCTypes(cap, kind);
+    cap.otypes = truncate(kind);
+    return cap;
+  endfunction;
   //////////////////////////////////////////////////////////////////////////////
-  function getType(cap) = case (cap.bounds) matches
-    tagged Sealed .b: return zeroExtend(b.otype);
-    default: return -1;
-  endcase;
+  function getCCType(cap) = zeroExtend(cap.otypes);
   //////////////////////////////////////////////////////////////////////////////
   function setType(cap, otype);
     let new_cap = cap;

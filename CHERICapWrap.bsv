@@ -58,6 +58,9 @@ function Bit#(31) `W(getPerms) (`CAPTYPE cap) = getPerms(cap);
 (* noinline *)
 function `CAPTYPE `W(setPerms) (`CAPTYPE cap, Bit#(31) perms) = setPerms(cap, perms);
 (* noinline *)
+function `CAPTYPE `W(setCCType) (`CAPTYPE cap, Bit#(CCTypeW) kind) = setCCType(cap, kind);
+(* noinline *)
+function Bit#(18) `W(getCCType) (`CAPTYPE cap) = getCCType(cap);
 function Kind#(OTypeW) `W(getKind) (`CAPTYPE cap) = getKind(cap);
 (* noinline *)
 function `CAPTYPE `W(setKind) (`CAPTYPE cap, Kind#(OTypeW) kind) = setKind(cap, kind);
