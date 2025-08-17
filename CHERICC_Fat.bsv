@@ -87,11 +87,11 @@ typedef `FLAGSW FlagsW;
 typedef 32 CapAddrW;
 typedef 64 CapW;
 `else // CAP128 is default
-typedef 4   UPermW;
+typedef 2   UPermW;
 typedef 14  MW;
 typedef 6   ExpW;
-typedef 18  OTypeW;
-typedef 18  CCTypeW;
+typedef 21  OTypeW;
+typedef 21  CCTypeW;
 typedef `FLAGSW FlagsW;
 typedef 64  CapAddrW;
 typedef 128 CapW;
@@ -203,7 +203,6 @@ instance FShow#(CapFat);
     $format("valid:%b", cap.isCapability)
     + $format(" perms:0x%x", getPerms(cap))
     //+ $format(" flags:0x%x", getFlags(cap))
-    + $format(" reserved:0x%x", cap.reserved)
     + $format(" format:", fshow(cap.format))
     + $format(" bounds:", fshow(cap.bounds))
     + $format(" address:0x%x", cap.address)

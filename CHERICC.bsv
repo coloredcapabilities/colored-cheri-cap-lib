@@ -141,7 +141,7 @@ endinstance
 // CHERICC capability type
 ////////////////////////////////////////////////////////////////////////////////
 
-`define CCSoftPerms Bit#(4)
+`define CCSoftPerms Bit#(2)
 `define AllPermsSz TAdd#(SizeOf#(`CCSoftPerms), SizeOf#(HardPerms))
 
 typedef struct {
@@ -162,7 +162,6 @@ instance Bits#(CHERICCCap#(addr_, bounds_, e_, t_),
     Bit#(1)                         isCap = pack(cap.isCap);
     Bit#(SizeOf#(`CCSoftPerms)) softperms = cap.softperms;
     Bit#(SizeOf#(HardPerms))    hardperms = pack(cap.hardperms);
-    Bit#(res_)                        res = cap.res;
     Bit#(bounds_)                  bounds = pack(cap.bounds);
     Bit#(addr_)                      addr = cap.addr;
     return {isCap, softperms, hardperms, res, bounds, addr};

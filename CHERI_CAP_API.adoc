@@ -99,7 +99,7 @@ typedef union {
   void SENTRY;
   void RES0;
   void RES1;
-  Bit #(type_width) SEALED_WITH_TYPE;
+  Bit #(21) SEALED_WITH_TYPE;
 } Kind #(numeric type type_width);
 ----
 
