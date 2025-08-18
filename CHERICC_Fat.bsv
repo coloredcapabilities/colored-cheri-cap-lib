@@ -1267,7 +1267,7 @@ instance CHERICap #(CapReg, OTypeW, FlagsW, CapAddrW, CapW, TSub #(MW, 3));
   endcase;
 
   function getCCType (cap) = zeroExtend (cap.otype);
-  function isCCType (cap, threshold) = (zeroExtend(cap.otype)>threshold) ? True : False;
+  function isCCType (cap, threshold) = (cap.otype>0 && zeroExtend(cap.otype)<threshold) ? True : False;
 
 
   
