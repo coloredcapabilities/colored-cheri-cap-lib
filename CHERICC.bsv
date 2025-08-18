@@ -299,6 +299,7 @@ instance CHERICap#(CHERICCCap#(addr_, bounds_, e_, t_), t_, addr_) provisos (
   endfunction;
   //////////////////////////////////////////////////////////////////////////////
   function getCCType(cap) = zeroExtend(cap.otypes);
+  function isCCType(cap, threshold) = (zeroExtend(cap.otypes)>threshold ? True : False);
   //////////////////////////////////////////////////////////////////////////////
   function setType(cap, otype);
     let new_cap = cap;

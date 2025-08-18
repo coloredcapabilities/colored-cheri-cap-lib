@@ -197,7 +197,8 @@ typeclass CHERICap #( type capT              // type of the CHERICap capability
   // Manipulate the kind of the capability, i.e. whether it is sealed, sentry,
   // unsealed, ...
   function capT setCCType (capT cap, Bit #(otypeW) kind);
-  function Bit #(21) getCCType (capT cap);
+  function Bit #(32) getCCType (capT cap);
+  function Bool isCCType (capT cap, Bit# (32) threshold);
   // get the kind of a capability
   function Kind #(otypeW) getKind (capT cap);
   // set the kind of a capability
