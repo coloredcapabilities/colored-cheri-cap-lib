@@ -1087,6 +1087,7 @@ instance CHERICap #(CapMem, OTypeW, FlagsW, CapAddrW, CapW, TSub #(MW, 3));
   // capability kind
   //////////////////////////////////////////////////////////////////////////////
   function getKind = error ("getKind not implemented for CapMem");
+  function getKind2 = error ("getKind2 not implemented for CapMem");
   function getCCType = error ("getCCType not implemented for CapMem");
   function isCCType = error ("isCCType not implemented for CapMem");
   function setCCType = error ("setCCType not implemented for CapMem");
@@ -1266,6 +1267,20 @@ instance CHERICap #(CapReg, OTypeW, FlagsW, CapAddrW, CapW, TSub #(MW, 3));
     default:        SEALED_WITH_TYPE (cap.otype);
   endcase;
 
+  function getKind2 (cap, threshold);
+    if (isCCType(cap, threshold))
+        return COLORED;
+    else begin
+        case (cap.otype)
+            otype_unsealed: return UNSEALED;
+            otype_sentry:   return SENTRY;
+            otype_res0:     return RES0;
+            otype_res1:     return RES1;
+            default:        return SEALED_WITH_TYPE (cap.otype);
+        endcase
+    end
+  endfunction
+
   function getCCType (cap) = zeroExtend (cap.otype);
   function isCCType (cap, threshold) = (cap.otype>0 && zeroExtend(cap.otype)<threshold) ? True : False;
 
@@ -1375,6 +1390,7 @@ instance CHERICap #(CapPipe, OTypeW, FlagsW, CapAddrW, CapW, TSub#(MW, 3));
     CapPipe { capFat: setSoftPerms(cap.capFat, perms)
             , tempFields: cap.tempFields };
   function getKind (cap) = getKind(cap.capFat);
+  function getKind2 (cap, threshold) = getKind2(cap.capFat, threshold);
   function getCCType (cap) = getCCType(cap.capFat);
   function isCCType (cap, threshold) = isCCType(cap.capFat, threshold);
   function setKind (cap, kind) =

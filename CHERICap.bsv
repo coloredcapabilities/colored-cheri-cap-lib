@@ -70,6 +70,7 @@ endinstance
 
 typedef union tagged {
   void UNSEALED;
+  void COLORED;
   void SENTRY;
   void RES0;
   void RES1;
@@ -201,6 +202,7 @@ typeclass CHERICap #( type capT              // type of the CHERICap capability
   function Bool isCCType (capT cap, Bit# (32) threshold);
   // get the kind of a capability
   function Kind #(otypeW) getKind (capT cap);
+  function Kind #(otypeW) getKind2 (capT cap, Bit#(32) threshold);
   // set the kind of a capability
   function capT setKind (capT cap, Kind #(otypeW) kind);
   // Check if a type is valid (requires a dummy proxy)
