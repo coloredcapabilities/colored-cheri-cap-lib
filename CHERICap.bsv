@@ -199,10 +199,10 @@ typeclass CHERICap #( type capT              // type of the CHERICap capability
   // unsealed, ...
   function capT setCCType (capT cap, Bit #(otypeW) kind);
   function Bit #(32) getCCType (capT cap);
-  function Bool isCCType (capT cap, Bit# (32) threshold);
+  function Bool isCCType (capT cap, Bit# (32) pidt);
   // get the kind of a capability
   function Kind #(otypeW) getKind (capT cap);
-  function Kind #(otypeW) getKind2 (capT cap, Bit#(32) threshold);
+  function Kind #(otypeW) getKind2 (capT cap, Bit#(32) pidt);
   // set the kind of a capability
   function capT setKind (capT cap, Kind #(otypeW) kind);
   // Check if a type is valid (requires a dummy proxy)

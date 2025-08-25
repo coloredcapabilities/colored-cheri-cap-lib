@@ -60,7 +60,7 @@ function `CAPTYPE `W(setPerms) (`CAPTYPE cap, Bit#(31) perms) = setPerms(cap, pe
 (* noinline *)
 function `CAPTYPE `W(setCCType) (`CAPTYPE cap, Bit#(CCTypeW) kind) = setCCType(cap, kind);
 (* noinline *)
-function Bit#(21) `W(getCCType) (`CAPTYPE cap, Bit# (32)) = getCCType(cap, threshold);
+function Bit#(21) `W(getCCType) (`CAPTYPE cap, Bit# (32)) = getCCType(cap, pidt);
 function Bool `W(isCCType) (`CAPTYPE cap) = isCCType(cap);
 function Kind#(CCTypeW) `W(getKind) (`CAPTYPE cap) = getKind(cap);
 (* noinline *)

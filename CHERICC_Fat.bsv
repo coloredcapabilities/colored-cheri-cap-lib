@@ -1267,8 +1267,8 @@ instance CHERICap #(CapReg, OTypeW, FlagsW, CapAddrW, CapW, TSub #(MW, 3));
     default:        SEALED_WITH_TYPE (cap.otype);
   endcase;
 
-  function getKind2 (cap, threshold);
-    if (isCCType(cap, threshold))
+  function getKind2 (cap, pidt);
+    if (isCCType(cap, pidt))
         return COLORED;
     else begin
         case (cap.otype)
@@ -1282,7 +1282,7 @@ instance CHERICap #(CapReg, OTypeW, FlagsW, CapAddrW, CapW, TSub #(MW, 3));
   endfunction
 
   function getCCType (cap) = zeroExtend (cap.otype);
-  function isCCType (cap, threshold) = (cap.otype>0 && zeroExtend(cap.otype)<threshold) ? True : False;
+  function isCCType (cap, pidt) = (cap.otype>0 && zeroExtend(cap.otype)<pidt) ? True : False;
 
 
   
@@ -1390,9 +1390,9 @@ instance CHERICap #(CapPipe, OTypeW, FlagsW, CapAddrW, CapW, TSub#(MW, 3));
     CapPipe { capFat: setSoftPerms(cap.capFat, perms)
             , tempFields: cap.tempFields };
   function getKind (cap) = getKind(cap.capFat);
-  function getKind2 (cap, threshold) = getKind2(cap.capFat, threshold);
+  function getKind2 (cap, pidt) = getKind2(cap.capFat, pidt);
   function getCCType (cap) = getCCType(cap.capFat);
-  function isCCType (cap, threshold) = isCCType(cap.capFat, threshold);
+  function isCCType (cap, pidt) = isCCType(cap.capFat, pidt);
   function setKind (cap, kind) =
     CapPipe { capFat:setKind(cap.capFat,kind)
             , tempFields: cap.tempFields };
