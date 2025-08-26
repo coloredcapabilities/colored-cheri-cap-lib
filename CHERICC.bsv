@@ -293,6 +293,19 @@ instance CHERICap#(CHERICCCap#(addr_, bounds_, e_, t_), t_, addr_) provisos (
     tagged Sealed ._: return SEALED_WITH_TYPE;
     default: return UNSEALED;
   endcase;
+  function getColorAwareKind (cap, pidt);
+    if (isCCType(cap, pidt))
+        return COLORED  (cap.otype);
+    else begin
+        case (cap.otype)
+            otype_unsealed: return UNSEALED;
+            otype_sentry:   return SENTRY;
+            otype_res0:     return RES0;
+            otype_res1:     return RES1;
+            default:        return SEALED_WITH_TYPE (cap.otype);
+        endcase
+    end
+  endfunction
   function setCCTypes(cap, kind);
     cap.otypes = truncate(kind);
     return cap;

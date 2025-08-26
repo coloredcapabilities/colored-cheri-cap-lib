@@ -687,6 +687,9 @@ function CapFat unseal(CapFat cap, x _);
   ret.otype = otype_unsealed;
   return ret;
 endfunction
+function CapFat color(CapFat cap, TempFields tf, CType otype);
+    return seal(cap, tf, otype);
+endfunction
 function VnD#(CapFat) incOffsetFat( CapFat cap
                                   , CapAddr pointer
                                   , CapAddr offset // this is the increment in inc offset, and the offset in set offset
@@ -1087,7 +1090,7 @@ instance CHERICap #(CapMem, OTypeW, FlagsW, CapAddrW, CapW, TSub #(MW, 3));
   // capability kind
   //////////////////////////////////////////////////////////////////////////////
   function getKind = error ("getKind not implemented for CapMem");
-  function getKind2 = error ("getKind2 not implemented for CapMem");
+  function getColorAwareKind = error ("getColorAwareKind not implemented for CapMem");
   function getCCType = error ("getCCType not implemented for CapMem");
   function isCCType = error ("isCCType not implemented for CapMem");
   function setCCType = error ("setCCType not implemented for CapMem");
@@ -1267,9 +1270,9 @@ instance CHERICap #(CapReg, OTypeW, FlagsW, CapAddrW, CapW, TSub #(MW, 3));
     default:        SEALED_WITH_TYPE (cap.otype);
   endcase;
 
-  function getKind2 (cap, pidt);
+  function getColorAwareKind (cap, pidt);
     if (isCCType(cap, pidt))
-        return COLORED;
+        return COLORED  (cap.otype);
     else begin
         case (cap.otype)
             otype_unsealed: return UNSEALED;
@@ -1291,6 +1294,7 @@ instance CHERICap #(CapReg, OTypeW, FlagsW, CapAddrW, CapW, TSub #(MW, 3));
     tagged SENTRY:               seal (cap, ?, VnD {v: True, d:otype_sentry});
     tagged RES0:                 seal (cap, ?, VnD {v: True, d:otype_res0});
     tagged RES1:                 seal (cap, ?, VnD {v: True, d:otype_res1});
+    tagged COLORED .ot:          color (cap, ?, VnD {v: True, d:ot});
     tagged SEALED_WITH_TYPE .ot: seal (cap, ?, VnD {v: True, d:ot});
   endcase;
 
@@ -1390,7 +1394,7 @@ instance CHERICap #(CapPipe, OTypeW, FlagsW, CapAddrW, CapW, TSub#(MW, 3));
     CapPipe { capFat: setSoftPerms(cap.capFat, perms)
             , tempFields: cap.tempFields };
   function getKind (cap) = getKind(cap.capFat);
-  function getKind2 (cap, pidt) = getKind2(cap.capFat, pidt);
+  function getColorAwareKind (cap, pidt) = getColorAwareKind(cap.capFat, pidt);
   function getCCType (cap) = getCCType(cap.capFat);
   function isCCType (cap, pidt) = isCCType(cap.capFat, pidt);
   function setKind (cap, kind) =
