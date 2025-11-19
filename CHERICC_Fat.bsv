@@ -198,23 +198,44 @@ function Fmt showArchitectural(CapFat cap) =
   + $format(" length:0x%x", getLengthFat(cap, getTempFields(cap)));
 
 // "Microarchitectural FShow"
+// instance FShow#(CapFat);
+//   function Fmt fshow(CapFat cap) =
+//     $format("valid:%b", cap.isCapability)
+//     + $format(" perms:0x%x", getPerms(cap))
+//     //+ $format(" flags:0x%x", getFlags(cap))
+//     + $format(" format:", fshow(cap.format))
+//     + $format(" bounds:", fshow(cap.bounds))
+//     + $format(" address:0x%x", cap.address)
+//     + $format(" addrBits:0x%x", cap.addrBits)
+//     + $format(" {bot:0x%x top:0x%x len:0x%x offset:0x%x}",
+//                 getBotFat(cap, getTempFields(cap)),
+//                 getTopFat(cap, getTempFields(cap)),
+//                 getLengthFat(cap, getTempFields(cap)),
+//                 getOffsetFat(cap, getTempFields(cap)))
+//     + $format(" (TempFields: {") + fshow(getTempFields(cap)) + $format("})");
+// endinstance
 instance FShow#(CapFat);
-  function Fmt fshow(CapFat cap) =
-    $format("valid:%b", cap.isCapability)
-    + $format(" perms:0x%x", getPerms(cap))
-    //+ $format(" flags:0x%x", getFlags(cap))
-    + $format(" format:", fshow(cap.format))
-    + $format(" bounds:", fshow(cap.bounds))
-    + $format(" address:0x%x", cap.address)
-    + $format(" addrBits:0x%x", cap.addrBits)
-    + $format(" {bot:0x%x top:0x%x len:0x%x offset:0x%x}",
-                getBotFat(cap, getTempFields(cap)),
-                getTopFat(cap, getTempFields(cap)),
-                getLengthFat(cap, getTempFields(cap)),
-                getOffsetFat(cap, getTempFields(cap)))
-    + $format(" (TempFields: {") + fshow(getTempFields(cap)) + $format("})");
+  function Fmt fshow(CapFat cap);
+    Fmt str;
+    if (cap.isCapability) 
+      str = $format("[Capability]: ")
+      + $format(" perms:0x%x", getPerms(cap))
+      + $format(" format:", fshow(cap.format))
+      + $format(" bounds:", fshow(cap.bounds))
+      + $format(" address:0x%x", cap.address)
+      + $format(" addrBits:0x%x", cap.addrBits)
+      + $format(" {bot:0x%x top:0x%x len:0x%x offset:0x%x}",
+                  getBotFat(cap, getTempFields(cap)),
+                  getTopFat(cap, getTempFields(cap)),
+                  getLengthFat(cap, getTempFields(cap)),
+                  getOffsetFat(cap, getTempFields(cap)))
+      + $format(" (TempFields: {") + fshow(getTempFields(cap)) + $format("})");
+    else 
+        str = $format("[Data]: ")
+        + $format(" data:0x%x", cap.address);
+    return str;
+  endfunction
 endinstance
-
 // default value for CatFat
 CapFat defaultCapFat = defaultValue;
 
@@ -1089,8 +1110,15 @@ instance CHERICap #(CapMem, OTypeW, FlagsW, CapAddrW, CapW, TSub #(MW, 3));
 
   // capability kind
   //////////////////////////////////////////////////////////////////////////////
-  function getKind = error ("getKind not implemented for CapMem");
+  function getColor = error ("getColor not implemented for CapMem");
   function getColorAwareKind = error ("getColorAwareKind not implemented for CapMem");
+  function isColoredCap = error ("isColoredCap not implemented for CapMem");
+  function isSealedOrSentry = error ("isSealedOrSentry not implemented for CapMem");
+  function isUnsealedOrColored = error ("isSealedOrSentry not implemented for CapMem");
+  function isKindNot = error ("isSealedOrSentry not implemented for CapMem");
+  function setColor = error ("setColor not implemented for CapMem");
+  function getKind = error ("getKind not implemented for CapMem");
+  function getBaseKind = error ("getKind not implemented for CapMem");
   function getCCType = error ("getCCType not implemented for CapMem");
   function isCCType = error ("isCCType not implemented for CapMem");
   function setCCType = error ("setCCType not implemented for CapMem");
@@ -1257,11 +1285,67 @@ instance CHERICap #(CapReg, OTypeW, FlagsW, CapAddrW, CapW, TSub #(MW, 3));
     cap.otype = truncate (otype);
     return cap;
   endfunction
+  function setColor (cap, otype); 
+    cap.otype = truncate (otype);
+    return cap;
+  endfunction
   //function getPerms = error ("getPerms not implemented for CapReg");
   //function setPerms = error ("setPerms not implemented for CapReg");
 
   // capability kind
   //////////////////////////////////////////////////////////////////////////////
+  function getColorAwareKind (cap, ccpt);
+    if (isColoredCap(cap, ccpt))
+         return COLORED (cap.otype);
+    else begin 
+      case (cap.otype)
+        otype_unsealed: return UNSEALED;
+        otype_sentry:   return SENTRY;
+        otype_res0:     return RES0;
+        otype_res1:     return RES1;
+        default:        return SEALED_WITH_TYPE (cap.otype);
+      endcase
+    end
+  endfunction
+  function  Maybe#(Bit#(21)) getColor(cap, ccpt);
+    if (isColoredCap(cap, ccpt))
+         return Valid(cap.otype);
+    else begin 
+      return Invalid;
+    end
+  endfunction
+  // function isColoredCap (cap, ccpt) = (cap.otype>=0 && zeroExtend(cap.otype)<ccpt) ? True : False;
+  function isColoredCap(cap, ccpt);
+    Bool result;
+    if(cap.otype==otype_unsealed)   result = False;
+    else if(cap.otype==otype_sentry) result = False;
+    else if(cap.otype==otype_res0)  result = False;
+    else if(cap.otype==otype_res1)  result = False;
+    else if (zeroExtend(cap.otype)<ccpt) result = True;
+    else result = False;   //otype_sealed
+    return result;
+  endfunction
+
+  function isSealedOrSentry (cap, ccpt);
+    Bool result;
+    if ( isColoredCap(cap, ccpt) ) result=False;
+    else if ( cap.otype == otype_unsealed ) result= False;
+    else if ( cap.otype == otype_res0 ) result= False;
+    else if ( cap.otype == otype_res1 ) result= False;
+    else result= True;
+    return result;
+  endfunction
+  function isUnsealedOrColored (cap, ccpt);
+    let kind = getColorAwareKind(cap,ccpt);
+    return  (kind==UNSEALED) ||
+            (kind matches tagged COLORED .t ? True:False);
+  endfunction
+  function isKindNot (cap, ccpt, kind);
+    Bool result;
+    if ( getColorAwareKind(cap, ccpt) == kind ) result = False;
+    else result = True;
+    return result;
+  endfunction
   function getKind (cap) = case (cap.otype)
     otype_unsealed: UNSEALED;
     otype_sentry:   SENTRY;
@@ -1270,24 +1354,16 @@ instance CHERICap #(CapReg, OTypeW, FlagsW, CapAddrW, CapW, TSub #(MW, 3));
     default:        SEALED_WITH_TYPE (cap.otype);
   endcase;
 
-  function getColorAwareKind (cap, pidt);
-    if (isCCType(cap, pidt))
-        return COLORED  (cap.otype);
-    else begin
-        case (cap.otype)
-            otype_unsealed: return UNSEALED;
-            otype_sentry:   return SENTRY;
-            otype_res0:     return RES0;
-            otype_res1:     return RES1;
-            default:        return SEALED_WITH_TYPE (cap.otype);
-        endcase
-    end
-  endfunction
+  function getBaseKind (cap) = case (cap.otype)
+    otype_unsealed: UNSEALED;
+    otype_sentry:   SENTRY;
+    otype_res0:     RES0;
+    otype_res1:     RES1;
+    default:        SEALED_WITH_TYPE (cap.otype);
+  endcase;
 
   function getCCType (cap) = zeroExtend (cap.otype);
   function isCCType (cap, pidt) = (cap.otype>0 && zeroExtend(cap.otype)<pidt) ? True : False;
-
-
   
   function setKind (cap, kind) = case (kind) matches
     tagged UNSEALED:             unseal (cap, ?);
@@ -1394,7 +1470,16 @@ instance CHERICap #(CapPipe, OTypeW, FlagsW, CapAddrW, CapW, TSub#(MW, 3));
     CapPipe { capFat: setSoftPerms(cap.capFat, perms)
             , tempFields: cap.tempFields };
   function getKind (cap) = getKind(cap.capFat);
+  function getBaseKind (cap) = getBaseKind(cap.capFat);
+  function getColor (cap) = getColor(cap.capFat);
   function getColorAwareKind (cap, pidt) = getColorAwareKind(cap.capFat, pidt);
+  function isColoredCap (cap, ccpt) = isColoredCap(cap.capFat, ccpt);
+  function isSealedOrSentry (cap, ccpt) = isSealedOrSentry (cap.capFat, ccpt);
+  function isUnsealedOrColored (cap, ccpt)= isUnsealedOrColored(cap.capFat, ccpt);
+  function isKindNot (cap, ccpt, kind)= isKindNot(cap.capFat, ccpt, kind);
+  function setColor (cap, kind) =
+    CapPipe { capFat:setColor(cap.capFat,kind)
+            , tempFields: cap.tempFields };
   function getCCType (cap) = getCCType(cap.capFat);
   function isCCType (cap, pidt) = isCCType(cap.capFat, pidt);
   function setKind (cap, kind) =

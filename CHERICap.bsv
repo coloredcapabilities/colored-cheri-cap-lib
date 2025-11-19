@@ -197,12 +197,20 @@ typeclass CHERICap #( type capT              // type of the CHERICap capability
   //////////////////////////////////////////////////////////////////////////////
   // Manipulate the kind of the capability, i.e. whether it is sealed, sentry,
   // unsealed, ...
+  function capT setColor (capT cap, Bit #(otypeW) kind);
+  function Bool isColoredCap (capT cap, Bit #(otypeW) ccpt);
+  function Bool isSealedOrSentry (capT cap, Bit #(otypeW) ccpt);
+  function Bool isUnsealedOrColored (capT cap, Bit #(otypeW) ccpt);
+  function Bool isKindNot (capT cap, Bit #(otypeW) ccpt, Kind #(otypeW) kind);
+  // get the kind of a capability
+  function Maybe#(Bit#(otypeW)) getColor (capT cap, Bit#(otypeW) ccpt);  
+  function Kind #(otypeW) getColorAwareKind (capT cap, Bit#(otypeW) ccpt);
   function capT setCCType (capT cap, Bit #(otypeW) kind);
   function Bit #(32) getCCType (capT cap);
   function Bool isCCType (capT cap, Bit# (32) pidt);
   // get the kind of a capability
   function Kind #(otypeW) getKind (capT cap);
-  function Kind #(otypeW) getColorAwareKind (capT cap, Bit#(32) pidt);
+  function Kind #(otypeW) getBaseKind (capT cap);
   // set the kind of a capability
   function capT setKind (capT cap, Kind #(otypeW) kind);
   // Check if a type is valid (requires a dummy proxy)
