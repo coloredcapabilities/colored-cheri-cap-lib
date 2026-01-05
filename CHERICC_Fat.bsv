@@ -116,6 +116,8 @@ typedef Bit#(CapAddrW)          CapAddr;
 typedef Bit#(TAdd#(CapAddrW,1)) CapAddrPlus1;
 typedef Bit#(TAdd#(CapAddrW,2)) CapAddrPlus2;
 // The Hardware permissions type
+
+
 typedef struct {
   Bool permit_set_CID;
   Bool access_sys_regs;
@@ -1282,7 +1284,10 @@ instance CHERICap #(CapReg, OTypeW, FlagsW, CapAddrW, CapW, TSub #(MW, 3));
     return cap;
   endfunction
   function setCCType (cap, otype); 
-    cap.otype = truncate (otype);
+    // Only allow changing otype if SW1 permission is set (bit 1 of soft perms)
+    if (cap.perms.soft[1] == 1'b1)
+      cap.otype = truncate (otype);
+    // else: otype remains unchanged (not allowed without SW1)
     return cap;
   endfunction
   function setColor (cap, otype); 
