@@ -6,6 +6,10 @@
  * Cambridge Computer Laboratory under DARPA/AFRL contract FA8750-10-C-0237
  * ("CTSRD"), as part of the DARPA CRASH research programme.
  *
+ * Colored-Cap modifications: 
+ *      Author: Hakan Englund, Merve Gulmez
+ *      Copyright (c) Ericsson AB 
+ *
  * @BERI_LICENSE_HEADER_START@
  *
  * Licensed to BERI Open Systems C.I.C. (BERI) under one or more contributor
